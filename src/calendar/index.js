@@ -120,7 +120,8 @@ const Calendar = (props) => {
     };
     const renderMonth = () => {
         const shouldShowSixWeeks = showSixWeeks && !hideExtraDays;
-        const days = page(currentMonth, firstDay, shouldShowSixWeeks);
+        const days = page(currentMonth, firstDay, shouldShowSixWeeks, props.isLunar);
+
         const weeks = [];
         while (days.length) {
             weeks.push(renderWeek(days.splice(0, 7), weeks.length));
