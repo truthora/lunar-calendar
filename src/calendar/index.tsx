@@ -60,6 +60,7 @@ export interface CalendarProps extends CalendarHeaderProps, DayProps {
   disabledByWeekDays?: number[];
   /** Test ID */
   testID?: string;
+  isLunar?: boolean;
 }
 
 /**
@@ -91,7 +92,8 @@ const Calendar = (props: CalendarProps & ContextProp) => {
     accessibilityElementsHidden,
     importantForAccessibility,
     testID,
-    style: propsStyle
+    style: propsStyle,
+    isLunar
   } = props;
   const [currentMonth, setCurrentMonth] = useState(current || initialDate ? parseDate(current || initialDate) : new XDate());
   const style = useRef(styleConstructor(theme));
@@ -112,7 +114,7 @@ const Calendar = (props: CalendarProps & ContextProp) => {
   }, [currentMonth]);
 
   const updateMonth = useCallback((newMonth: XDate) => {
-    if (sameMonth(newMonth, currentMonth)) {
+    if (sameMonth(newMonth, currentMonth, isLunar)) {
       return;
     }
     setCurrentMonth(newMonth);
@@ -232,7 +234,7 @@ const Calendar = (props: CalendarProps & ContextProp) => {
 
   const renderMonth = () => {
     const shouldShowSixWeeks = showSixWeeks && !hideExtraDays;
-    const days = page(currentMonth, firstDay, shouldShowSixWeeks);
+    const days = page(currentMonth, firstDay, shouldShowSixWeeks, isLunar);
     const weeks: JSX.Element[] = [];
 
     while (days.length) {

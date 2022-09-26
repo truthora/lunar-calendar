@@ -2,15 +2,35 @@ const XDate = require('xdate');
 const {toMarkingFormat} = require('./interface');
 
 const latinNumbersPattern = /[0-9]/g;
+import * as lunar from './lunar';
 
 function isValidXDate(date: any) {
-  return date && (date instanceof XDate);
+  return date && date instanceof XDate;
 }
 
-export function sameMonth(a?: XDate, b?: XDate) {
+export function sameMonth(a?: XDate, b?: XDate, isLunar?: boolean) {
   if (!isValidXDate(a) || !isValidXDate(b)) {
     return false;
   } else {
+    if (isLunar) {
+      const dateCopy = new XDate(a);
+      const fullMoonMonth = lunar.phase_hunt(dateCopy).full_date;
+      let startFullMoonMonth = fullMoonMonth;
+      let endFullMoonMonth = fullMoonMonth;
+      if (dateCopy < fullMoonMonth) {
+        dateCopy.setMonth(dateCopy.getMonth() - 1);
+        startFullMoonMonth = lunar.phase_hunt(dateCopy).full_date;
+      } else {
+        dateCopy.setMonth(dateCopy.getMonth() + 1);
+        endFullMoonMonth = lunar.phase_hunt(dateCopy).full_date;
+      }
+
+      if (!b || b.getTime() < startFullMoonMonth.getTime() || b.getTime() > endFullMoonMonth.getTime()) {
+        return false;
+      }
+
+      return true;
+    }
     return a?.getFullYear() === b?.getFullYear() && a?.getMonth() === b?.getMonth();
   }
 }
@@ -33,7 +53,7 @@ export function onSameDateRange({
   secondDay: string;
   numberOfDays: number;
   firstDateInRange: string;
-}){
+}) {
   const aDate = new XDate(firstDay);
   const bDate = new XDate(secondDay);
   const firstDayDate = new XDate(firstDateInRange);
@@ -105,7 +125,28 @@ function fromTo(a: XDate, b: XDate): XDate[] {
   return days;
 }
 
-export function month(date: XDate) { // exported for tests only
+export function lunarMonth(date) {
+  const dateCopy = new XDate(date);
+  const fullMoonMonth = lunar.phase_hunt(dateCopy).full_date;
+  let startFullMoonMonth = fullMoonMonth;
+  let endFullMoonMonth = fullMoonMonth;
+  if (dateCopy < fullMoonMonth) {
+    dateCopy.setMonth(dateCopy.getMonth() - 1);
+    startFullMoonMonth = lunar.phase_hunt(dateCopy).full_date;
+  } else {
+    dateCopy.setMonth(dateCopy.getMonth() + 1);
+    endFullMoonMonth = lunar.phase_hunt(dateCopy).full_date;
+  }
+
+  const firstDay = new XDate(startFullMoonMonth);
+  const lastDay = new XDate(endFullMoonMonth);
+  return fromTo(firstDay, lastDay);
+}
+export function month(date: XDate, lunar: boolean) {
+  // exported for tests only
+  if (lunar) {
+    return lunarMonth(date);
+  }
   const year = date.getFullYear(),
     month = date.getMonth();
   const days = new XDate(year, month + 1, 0).getDate();
@@ -125,8 +166,8 @@ export function weekDayNames(firstDayOfWeek = 0) {
   return weekDaysNames;
 }
 
-export function page(date: XDate, firstDayOfWeek = 0, showSixWeeks = false) {
-  const days = month(date);
+export function page(date: XDate, firstDayOfWeek = 0, showSixWeeks = false, lunar = false) {
+  const days = month(date, lunar);
   let before: XDate[] = [];
   let after: XDate[] = [];
 
