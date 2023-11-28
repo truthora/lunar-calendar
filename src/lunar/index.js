@@ -15,7 +15,7 @@
  // This is the point of truth according to IUIC calendar
  // 2022-03-18 was the first month, first day of the year in 2022.
  // all previous years and future years will be calculated from this starting point
- const firstLunarDay2022 = new Date('2022-03-18');
+ const firstLunarDay2023 = new Date('2023-04-06');
  
  
  const julian = require('./julian');
@@ -439,19 +439,19 @@
  }
  
  const getLunarFirstDay = date => {
-   if (date.getFullYear() === firstLunarDay2022.getFullYear()) {
-     return firstLunarDay2022;
+   if (date.getFullYear() === firstLunarDay2023.getFullYear()) {
+     return firstLunarDay2023;
    }
-   let holdDate = new Date(firstLunarDay2022);
-   const n = date.getFullYear() < firstLunarDay2022.getFullYear() ? -1 : 1;
+   let holdDate = new Date(firstLunarDay2023);
+   const n = date.getFullYear() < firstLunarDay2023.getFullYear() ? -1 : 1;
    const getFullMoon =
-     date.getFullYear() < firstLunarDay2022.getFullYear()
+     date.getFullYear() < firstLunarDay2023.getFullYear()
        ? full_moons_before
        : full_moons_after;
  
    while (holdDate.getFullYear() !== date.getFullYear()) {
-     const theLeapTester = new Date(firstLunarDay2022);
-     if (date.getFullYear() < firstLunarDay2022.getFullYear()) {
+     const theLeapTester = new Date(firstLunarDay2023);
+     if (date.getFullYear() < firstLunarDay2023.getFullYear()) {
        theLeapTester.setFullYear(holdDate.getFullYear());
      } else {
        theLeapTester.setFullYear(holdDate.getFullYear() + 1);
